@@ -32,7 +32,7 @@ class MQTTRequestResponseProtocol extends TypedEventEmitter<TRequestResponseEven
     async init(options: IClientOptions) {
         if ( !this.Initialized ) {
             this.Client = await MQTT.connectAsync(options)
-            await this.Client.subscribeAsync(this.Topics)
+            await this.Client.subscribeAsync([ this.Identifier, ...this.Topics ])
 
             this.Initialized = true
             this.handleEvents()
@@ -47,7 +47,7 @@ class MQTTRequestResponseProtocol extends TypedEventEmitter<TRequestResponseEven
         this.Client.on('message', this.handleMessageEvents)
     }
 
-    private handleMessageEvents(_topic: string, message: Buffer) {
+    private handleMessageEvents(topic: string, message: Buffer) {
         let payload: TPayload | null = null
         
         try {
@@ -56,7 +56,7 @@ class MQTTRequestResponseProtocol extends TypedEventEmitter<TRequestResponseEven
             throw e
         }
 
-        if ( payload.callback_id && payload.from_topic === this.Identifier ) {
+        if ( payload.callback_id && topic === this.Identifier ) {
             this.EE.emit(payload.callback_id, payload)
             this.EE.removeAllListeners(payload.callback_id)
             return
