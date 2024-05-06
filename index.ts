@@ -102,4 +102,4 @@ class MQTTRequestResponseProtocol extends TypedEventEmitter<TRequestResponseEven
 }
 
 export default MQTTRequestResponseProtocol
-export { type TRequestResponseEvents }
+export { type TPayload }
